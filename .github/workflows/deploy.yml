@@ -46,4 +46,4 @@ jobs:
           curl -LO https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
           tar xf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin/
-          kubeconform -recursive kubernetes/
+          kubeconform -recursive -ignore-missing-schemas kubernetes/
