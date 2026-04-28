@@ -1,5 +1,4 @@
 name: Build and Push to ECR
-
 on:
   push:
     branches:
@@ -7,45 +6,33 @@ on:
   pull_request:
     branches:
       - main
-
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-
 jobs:
   build-and-push:
     name: Build and Push Images
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout code
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Configure AWS credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      # Login to ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      # Build and push frontend image
       - name: Build and Push Frontend
-  env:
+        env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/kubernetes-eks-app/frontend:$IMAGE_TAG ./app/frontend
           docker push $ECR_REGISTRY/kubernetes-eks-app/frontend:$IMAGE_TAG
           docker tag $ECR_REGISTRY/kubernetes-eks-app/frontend:$IMAGE_TAG $ECR_REGISTRY/kubernetes-eks-app/frontend:latest
           docker push $ECR_REGISTRY/kubernetes-eks-app/frontend:latest
-
-      # Build and push backend image
       - name: Build and Push Backend
         env:
           IMAGE_TAG: ${{ github.sha }}
@@ -54,11 +41,9 @@ jobs:
           docker push $ECR_REGISTRY/kubernetes-eks-app/backend:$IMAGE_TAG
           docker tag $ECR_REGISTRY/kubernetes-eks-app/backend:$IMAGE_TAG $ECR_REGISTRY/kubernetes-eks-app/backend:latest
           docker push $ECR_REGISTRY/kubernetes-eks-app/backend:latest
-
-      # Validate Kubernetes manifests
       - name: Validate Kubernetes Manifests
         run: |
-     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
           kubectl apply --dry-run=client -f kubernetes/ --recursive
