@@ -43,7 +43,7 @@ jobs:
           docker push $ECR_REGISTRY/kubernetes-eks-app/backend:latest
       - name: Validate Kubernetes Manifests
         run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-          kubectl apply --dry-run=client --validate=false -f kubernetes/ --recursive
+          curl -LO https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo mv kubeval /usr/local/bin/
+          kubeval --recursive kubernetes/
